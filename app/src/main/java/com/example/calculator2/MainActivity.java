@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             calculatorText.setText("ERROR");
             writeable = false;
         }else{
-            int roundTo = 10000000 ;
+            int roundTo = 10000000;
             answer = Math.round(answer * roundTo)*1.0 / roundTo;
             String newText = "" + answer;
             if(newText.substring(newText.length()-2,newText.length()).equals(".0")){
