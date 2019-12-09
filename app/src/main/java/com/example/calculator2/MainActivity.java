@@ -11,11 +11,13 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    //values for doing the actual calculating
     private final int ADD = 0;
     private final int SUB = 1;
     private final int MULT = 2;
     private final int DIV = 3;
-
+    private final int MOD = 4;
     private double valueHolder = -1;
     private int operator = -1;
 
@@ -76,9 +78,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void onButtonClick(View view) {
 
-        if (calculatorText.getText().toString().trim().equals("0")) {
-            calculatorText.setText("");
-        }
 
         if (!writeable) {
             if (view.getId() == R.id.AC) {
@@ -94,11 +93,20 @@ public class MainActivity extends AppCompatActivity {
                     decimalClicked = false;
                     break;
                 case R.id.equals:
-                    if (calculatorText.getText().toString().trim().equals("")) {
-                        calculatorText.setText("0");
-                    }
                     equation();
                     overwriteable = false;
+                    decimalClicked = false;
+                    break;
+                case R.id.negation:
+                    double val = Double.parseDouble(calculatorText.getText().toString());
+                    val *= -1;
+                    calculatorText.setText("" + val);
+                    break;
+                case R.id.percent:
+                    valueHolder = Double.parseDouble(calculatorText.getText().toString());
+                    calculatorText.setText("0");
+                    operator = MOD;
+                    overwriteable = true;
                     decimalClicked = false;
                     break;
                 case R.id.division:
@@ -132,16 +140,19 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.decimal:
                     if (decimalClicked) {
                         //do nothing, to avoid double decimals
-                    } else if (calculatorText.getText().toString().equals("")) {
-                        calculatorText.setText("0.");
                     } else if (overwriteable) {
                         calculatorText.setText(calculatorText.getText().toString().trim() + ".");
+                        decimalClicked = true;
                     }
                     decimalClicked = true;
                     break;
                 default:
-                    if (calculatorText.getText().toString().equals("") || overwriteable) {
-                        calculatorText.setText(calculatorText.getText().toString().trim() + ((Button) view).getText());
+                    if (overwriteable) {
+                        String text = calculatorText.getText().toString().trim();
+                        if(text.equals("0")){
+                            text="";
+                        }
+                        calculatorText.setText(text + ((Button) view).getText());
                     }
             }
         }
@@ -152,6 +163,10 @@ public class MainActivity extends AppCompatActivity {
         double answer = 0;
         boolean divideByZero = false;
         switch(operator){
+            case MOD:
+                answer = valueHolder % val;
+                valueHolder = 0;
+                break;
             case ADD:
                 answer = valueHolder + val;
                 valueHolder = 0;
@@ -172,16 +187,17 @@ public class MainActivity extends AppCompatActivity {
                 }
                 valueHolder = 0;
         }
-        if(divideByZero){
+        if(divideByZero) {
             calculatorText.setText("ERROR");
             writeable = false;
-        }else {
-            String textToBe = ""+answer;
-            int length = textToBe.length();
-            if(textToBe.substring(length-2,length).equals(".0")){
-                textToBe = textToBe.substring(0,length-2);
+        }else{
+            int roundTo = 10000000 ;
+            answer = Math.round(answer * roundTo)*1.0 / roundTo;
+            String newText = "" + answer;
+            if(newText.substring(newText.length()-2,newText.length()).equals(".0")){
+                newText = newText.substring(0,newText.length()-2);
             }
-            calculatorText.setText(textToBe);
+            calculatorText.setText(newText);
         }
     }
 
